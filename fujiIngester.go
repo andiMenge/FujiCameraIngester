@@ -1,11 +1,20 @@
 package main
 
 import (
-	"log"
-	"path/filepath"
 	"fmt"
+	"github.com/kr/fs"
+	"log"
 	"flag"
+	"regexp"
 )
+
+//debug functions
+func printSlice(pathSlice []string) {
+	fmt.Printf("INFO: Slice stats:\nlen=%d cap=%d %v\n\n", len(pathSlice), cap(pathSlice), pathSlice)
+}
+
+//Vars
+const regExPattern = "\\.(JPG|RAF)"
 
 // error checker
 func checkError(err error) {
@@ -14,31 +23,24 @@ func checkError(err error) {
 	}
 }
 
-// takes file path as string and returns string array with file paths
 func findFiles(path string) []string {
-	files, err := filepath.Glob(path)
-	checkError(err)
-	return files
-}
-
-//takes string array from findFiles and prints them to std out. If string array is nil then error gehts thrown
-func printFiles(searchPattern *string) {
-	files := findFiles(*searchPattern)
-	if files == nil {
-		log.Fatal("ERROR: no files found. Search pattern was:" + *searchPattern + "\nCheck your search pattern and try again\n")
+	pathSlice := make([]string, 0) //create empty slice
+	regEx, err := regexp.Compile(regExPattern) // compile regEx pattern from regExPattern
+	checkError(err) //checks for errors from regex compiling
+	walker := fs.Walk(path)
+	for walker.Step() {
+	    err := walker.Err()
+	    checkError(err) //checks errors from walker.Step
+	  	if regEx.MatchString(walker.Path()) == true { //if filepath matches regExPattern path gets added to slice
+	  		pathSlice = append(pathSlice, walker.Path())
+	  	}
 	}
-	for _, i := range files {
-		fmt.Println(i)
-	}
+	return pathSlice //returns slice of paths
 }
 
 func main() {
-	// Commandline Flag Definition
-	filesToLookforPtr := flag.String("f", "./*", "file pattern to look for")
 	flag.Parse()
-
-	printFiles(filesToLookforPtr)
-
-	
-
+	searchPath := flag.Arg(0)
+	filePathSlice := findFiles(searchPath)
+	printSlice(filePathSlice)
 }
