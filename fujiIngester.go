@@ -7,7 +7,6 @@ import (
 	"flag"
 	"regexp"
 	"os"
-	"os/exec"
 )
 
 //debug functions
@@ -52,15 +51,13 @@ func findFiles(path string) ([]string, []string) {
 // create target folder in ./
 func createDirs() {
 	folderNames := [2]string {"Fuji_XE2_JPEG", "Fuji_XE2_RAW"}
-	fmt.Println(folderNames)
+	pwd, err := os.Getwd()
+	checkError(err)
 	for _, i := range folderNames {
+		fmt.Println("INFO: creating folder:" + pwd + "/" + i)
 		err := os.Mkdir(i, 0755)
 		checkError(err)
 	}
-}
-
-func copyFiles() {
-	
 }
 
 func main() {
