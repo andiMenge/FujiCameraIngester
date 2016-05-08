@@ -10,7 +10,7 @@ import (
 
 //debug functions
 func printSlice(pathSlice []string) {
-	fmt.Printf("INFO: Slice stats:\nlen=%d cap=%d %v\n\n", len(pathSlice), cap(pathSlice), pathSlice)
+	fmt.Printf("DEBUG: Slice stats:\nlen=%d cap=%d %v\n\n", len(pathSlice), cap(pathSlice), pathSlice)
 }
 
 //Vars
@@ -23,6 +23,8 @@ func checkError(err error) {
 	}
 }
 
+//parses searchPath recursive and looks for file endings specified in egExPattern.
+//if found filepath gets extended to to slice array. Returns slice array with absolute file paths.
 func findFiles(path string) []string {
 	pathSlice := make([]string, 0) //create empty slice
 	regEx, err := regexp.Compile(regExPattern) // compile regEx pattern from regExPattern
