@@ -6,6 +6,8 @@ import (
 	"log"
 	"flag"
 	"regexp"
+	"os"
+	"os/exec"
 )
 
 //debug functions
@@ -14,7 +16,8 @@ func printSlice(pathSlice []string) {
 }
 
 //Vars
-const regExPattern = "\\.(JPG|RAF)"
+const JpgRegExPattern = "\\.(JPG)"
+const RafRegExPattern = "\\.(RAF)"
 
 // error checker
 func checkError(err error) {
@@ -25,24 +28,46 @@ func checkError(err error) {
 
 //parses searchPath recursive and looks for file endings specified in egExPattern.
 //if found filepath gets extended to to slice array. Returns slice array with absolute file paths.
-func findFiles(path string) []string {
-	pathSlice := make([]string, 0) //create empty slice
-	regEx, err := regexp.Compile(regExPattern) // compile regEx pattern from regExPattern
+func findFiles(path string) ([]string, []string) {
+	JpgPathSlice := make([]string, 0) //create empty string slice for JPG files
+	RafPathSlice := make([]string, 0) //create empty string slice for RAF files
+	JpgRegEx, err := regexp.Compile(JpgRegExPattern) // compile regEx pattern
+	checkError(err) //checks for errors from regex compiling
+	RafRegEx, err := regexp.Compile(RafRegExPattern) // compile regEx pattern
 	checkError(err) //checks for errors from regex compiling
 	walker := fs.Walk(path)
 	for walker.Step() {
 	    err := walker.Err()
 	    checkError(err) //checks errors from walker.Step
-	  	if regEx.MatchString(walker.Path()) == true { //if filepath matches regExPattern path gets added to slice
-	  		pathSlice = append(pathSlice, walker.Path())
+	  	switch {
+	  	case JpgRegEx.MatchString(walker.Path()) == true:
+	  		JpgPathSlice = append(JpgPathSlice, walker.Path())
+	  	case RafRegEx.MatchString(walker.Path()) == true:
+	  		RafPathSlice = append(RafPathSlice, walker.Path())
 	  	}
 	}
-	return pathSlice //returns slice of paths
+	return JpgPathSlice, RafPathSlice //returns slice of paths
+}
+
+// create target folder in ./
+func createDirs() {
+	folderNames := [2]string {"Fuji_XE2_JPEG", "Fuji_XE2_RAW"}
+	fmt.Println(folderNames)
+	for _, i := range folderNames {
+		err := os.Mkdir(i, 0755)
+		checkError(err)
+	}
+}
+
+func copyFiles() {
+	
 }
 
 func main() {
 	flag.Parse()
 	searchPath := flag.Arg(0)
-	filePathSlice := findFiles(searchPath)
-	printSlice(filePathSlice)
+	createDirs()
+	JpgFilePathSlice, RafFilePathSlice := findFiles(searchPath)
+	printSlice(JpgFilePathSlice)
+	printSlice(RafFilePathSlice)
 }
