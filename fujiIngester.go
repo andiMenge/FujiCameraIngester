@@ -10,7 +10,7 @@ import (
 
 //debug functions
 func printSlice(pathSlice []string) {
-	fmt.Printf("DEBUG: Slice stats:\nlen=%d cap=%d %v\n\n", len(pathSlice), cap(pathSlice), pathSlice)
+	fmt.Printf("DEBUG: Slice stats:\nlen=%d cap=%d \n", len(pathSlice), cap(pathSlice))
 }
 
 //Vars
