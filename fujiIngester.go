@@ -62,6 +62,7 @@ func createDirs() {
 	}
 }
 
+// takes src and destination path as input and copys files with cp tool
 func copyFiles(src string, dest string) {
 	env := os.Environ() //uses current ENV variables
 	args := []string{"cp", "-av", src, dest}
