@@ -1,12 +1,14 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/kr/fs"
 	"log"
-	"flag"
-	"regexp"
 	"os"
+	"os/exec"
+	"regexp"
+	"syscall"
 )
 
 //debug functions
@@ -21,36 +23,36 @@ const RafRegExPattern = "\\.(RAF)"
 // error checker
 func checkError(err error) {
 	if err != nil {
-		log.Fatal("ERROR: ",err)
+		log.Fatal("ERROR: ", err)
 	}
 }
 
 //parses searchPath recursive and looks for file endings specified in egExPattern.
 //if found filepath gets extended to to slice array. Returns slice array with absolute file paths.
 func findFiles(path string) ([]string, []string) {
-	JpgPathSlice := make([]string, 0) //create empty string slice for JPG files
-	RafPathSlice := make([]string, 0) //create empty string slice for RAF files
+	JpgPathSlice := make([]string, 0)                //create empty string slice for JPG files
+	RafPathSlice := make([]string, 0)                //create empty string slice for RAF files
 	JpgRegEx, err := regexp.Compile(JpgRegExPattern) // compile regEx pattern
-	checkError(err) //checks for errors from regex compiling
+	checkError(err)                                  //checks for errors from regex compiling
 	RafRegEx, err := regexp.Compile(RafRegExPattern) // compile regEx pattern
-	checkError(err) //checks for errors from regex compiling
+	checkError(err)                                  //checks for errors from regex compiling
 	walker := fs.Walk(path)
 	for walker.Step() {
-	    err := walker.Err()
-	    checkError(err) //checks errors from walker.Step
-	  	switch {
-	  	case JpgRegEx.MatchString(walker.Path()) == true:
-	  		JpgPathSlice = append(JpgPathSlice, walker.Path())
-	  	case RafRegEx.MatchString(walker.Path()) == true:
-	  		RafPathSlice = append(RafPathSlice, walker.Path())
-	  	}
+		err := walker.Err()
+		checkError(err) //checks errors from walker.Step
+		switch {
+		case JpgRegEx.MatchString(walker.Path()) == true:
+			JpgPathSlice = append(JpgPathSlice, walker.Path())
+		case RafRegEx.MatchString(walker.Path()) == true:
+			RafPathSlice = append(RafPathSlice, walker.Path())
+		}
 	}
 	return JpgPathSlice, RafPathSlice //returns slice of paths
 }
 
 // create target folder in ./
 func createDirs() {
-	folderNames := [2]string {"Fuji_XE2_JPEG", "Fuji_XE2_RAW"}
+	folderNames := [2]string{"Fuji_XE2_JPEG", "Fuji_XE2_RAW"}
 	pwd, err := os.Getwd()
 	checkError(err)
 	for _, i := range folderNames {
@@ -58,6 +60,15 @@ func createDirs() {
 		err := os.Mkdir(i, 0755)
 		checkError(err)
 	}
+}
+
+func copyFiles(src string, dest string) {
+	env := os.Environ() //uses current ENV variables
+	args := []string{"cp", "-av", src, dest}
+	bin, lookErr := exec.LookPath("cp") //finds absolut path to binary
+	checkError(lookErr)
+	execErr := syscall.Exec(bin, args, env)
+	checkError(execErr)
 }
 
 func main() {
