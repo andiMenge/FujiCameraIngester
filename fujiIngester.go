@@ -52,12 +52,12 @@ func findFiles(path string) ([]string, []string) {
 
 // create target folder in ./
 func createDirs() {
-	folderNames := [2]string{"Fuji_XE2_JPEG", "Fuji_XE2_RAW"}
+	folderNames := [3]string{"1_source/Fuji_XE2_JPEG", "1_source/Fuji_XE2_RAW", "2_delivery"}
 	pwd, err := os.Getwd()
 	checkError(err)
 	for _, i := range folderNames {
 		fmt.Println("INFO: creating folder:" + pwd + "/" + i)
-		err := os.Mkdir(i, 0755)
+		err := os.MkdirAll(i, 0755)
 		checkError(err)
 	}
 }
