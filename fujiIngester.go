@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
-	"syscall"
 )
 
 //debug functions
@@ -64,13 +63,14 @@ func createDirs() {
 
 // takes src and destination path as input and copys files with cp tool
 func copyFiles(src []string, dest string) {
-	env := os.Environ()                 //uses current ENV variables
 	bin, lookErr := exec.LookPath("cp") //finds absolut path to binary
 	checkError(lookErr)
+	args := "-av" //args for cp command
 	for _, i := range src {
-		args := []string{"cp", "-av", i, dest}
-		execErr := syscall.Exec(bin, args, env)
-		checkError(execErr)
+		copyCmd := exec.Command(bin, args, i, dest) //executes cp cmd
+		cmdOut, cpErr := copyCmd.Output()           // collects stdin from cp cmd
+		checkError(cpErr)
+		fmt.Printf(string(cmdOut)) //prints stdin from cp to terminal
 	}
 }
 
@@ -79,8 +79,9 @@ func main() {
 	searchPath := flag.Arg(0)
 	createDirs()
 	JpgFilePathSlice, RafFilePathSlice := findFiles(searchPath)
-	printSlice(JpgFilePathSlice)
-	printSlice(RafFilePathSlice)
+	// printSlice(JpgFilePathSlice)
+	// printSlice(RafFilePathSlice)
 	copyFiles(JpgFilePathSlice, "./1_source/Fuji_XE2_JPEG")
+	copyFiles(RafFilePathSlice, "./1_source/Fuji_XE2_RAW")
 
 }
