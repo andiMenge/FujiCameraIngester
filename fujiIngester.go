@@ -63,13 +63,15 @@ func createDirs() {
 }
 
 // takes src and destination path as input and copys files with cp tool
-func copyFiles(src string, dest string) {
-	env := os.Environ() //uses current ENV variables
-	args := []string{"cp", "-av", src, dest}
+func copyFiles(src []string, dest string) {
+	env := os.Environ()                 //uses current ENV variables
 	bin, lookErr := exec.LookPath("cp") //finds absolut path to binary
 	checkError(lookErr)
-	execErr := syscall.Exec(bin, args, env)
-	checkError(execErr)
+	for _, i := range src {
+		args := []string{"cp", "-av", i, dest}
+		execErr := syscall.Exec(bin, args, env)
+		checkError(execErr)
+	}
 }
 
 func main() {
@@ -79,4 +81,6 @@ func main() {
 	JpgFilePathSlice, RafFilePathSlice := findFiles(searchPath)
 	printSlice(JpgFilePathSlice)
 	printSlice(RafFilePathSlice)
+	copyFiles(JpgFilePathSlice, "./1_source/Fuji_XE2_JPEG")
+
 }
