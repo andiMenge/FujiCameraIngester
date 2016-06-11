@@ -67,8 +67,8 @@ func copyFiles(src []string, dest string) {
 	checkError(lookErr)
 	args := "-av" //args for cp command
 	for _, i := range src {
-		copyCmd := exec.Command(bin, args, i, dest) //executes cp cmd
-		cmdOut, cpErr := copyCmd.Output()           // collects stdin from cp cmd
+		copyCmd := exec.Command(bin, args, i, dest) //preps cp cmd
+		cmdOut, cpErr := copyCmd.Output()           // executes cp cmd collects stdin from cp cmd
 		checkError(cpErr)
 		fmt.Printf(string(cmdOut)) //prints stdin from cp to terminal
 	}
