@@ -10,14 +10,23 @@ import (
 	"regexp"
 )
 
+//Vars
+
+// RegEx pattern that is used to find files
+const JpgRegExPattern = "\\.(JPG)"
+const RafRegExPattern = "\\.(RAF)"
+
+//here can you define your working folders. They will be created by func createDirs()
+var destPaths = map[string]string{
+	"jpegPath": "1_source/Fuji_XE2_JPEG",
+	"rawPath":  "1_source/Fuji_XE2_RAW",
+	"outPath":  "2_delivery",
+}
+
 //debug functions
 func printSlice(pathSlice []string) {
 	fmt.Printf("DEBUG: Slice stats:\nlen=%d cap=%d \n", len(pathSlice), cap(pathSlice))
 }
-
-//Vars
-const JpgRegExPattern = "\\.(JPG)"
-const RafRegExPattern = "\\.(RAF)"
 
 // error checker
 func checkError(err error) {
@@ -51,12 +60,11 @@ func findFiles(path string) ([]string, []string) {
 
 // create target folder in ./
 func createDirs() {
-	folderNames := [3]string{"1_source/Fuji_XE2_JPEG", "1_source/Fuji_XE2_RAW", "2_delivery"}
 	pwd, err := os.Getwd()
 	checkError(err)
-	for _, i := range folderNames {
-		fmt.Println("INFO: creating folder:" + pwd + "/" + i)
-		err := os.MkdirAll(i, 0755)
+	for i := range destPaths { //gets keys stored in map
+		fmt.Printf("INFO: creating folder: %s/%s\n", pwd, destPaths[i])
+		err := os.MkdirAll(destPaths[i], 0755)
 		checkError(err)
 	}
 }
@@ -79,9 +87,10 @@ func main() {
 	searchPath := flag.Arg(0)
 	createDirs()
 	JpgFilePathSlice, RafFilePathSlice := findFiles(searchPath)
+	copyFiles(JpgFilePathSlice, destPaths["jpegPath"])
+	copyFiles(RafFilePathSlice, destPaths["rawPath"])
+
+	//DEBUG
 	// printSlice(JpgFilePathSlice)
 	// printSlice(RafFilePathSlice)
-	copyFiles(JpgFilePathSlice, "./1_source/Fuji_XE2_JPEG")
-	copyFiles(RafFilePathSlice, "./1_source/Fuji_XE2_RAW")
-
 }
