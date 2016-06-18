@@ -1,6 +1,18 @@
 [![Build Status](https://travis-ci.org/andiMenge/fujiCp.svg?branch=master)](https://travis-ci.org/andiMenge/fujiCp)
+
 # fujiCp
-creates directorys and copies fuji camera images files from SD to specified path
+```
+NAME:
+   fujiCp - copies images from fuji cameras
 
-
-work in progress!
+USAGE:
+   fujiCp /path/to/source/folder/or/sdCard
+   
+VERSION:
+   1.0.0
+   
+COMMANDS:
+GLOBAL OPTIONS:
+   --help, -h     show help
+   --version, -v  print the version
+```
