@@ -1,9 +1,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/kr/fs"
+	"github.com/urfave/cli"
 	"log"
 	"os"
 	"os/exec"
@@ -78,19 +78,34 @@ func copyFiles(src []string, dest string) {
 		copyCmd := exec.Command(bin, args, i, dest) //preps cp cmd
 		cmdOut, cpErr := copyCmd.Output()           // executes cp cmd collects stdin from cp cmd
 		checkError(cpErr)
-		fmt.Printf(string(cmdOut)) //prints stdin from cp to terminal
+		fmt.Printf(string(cmdOut)) //prints stdout from cp to terminal
 	}
 }
 
-func main() {
-	flag.Parse()
-	searchPath := flag.Arg(0)
+//main programm flow
+func mainFunc(searchPath string) {
 	createDirs()
 	JpgFilePathSlice, RafFilePathSlice := findFiles(searchPath)
 	copyFiles(JpgFilePathSlice, destPaths["jpegPath"])
 	copyFiles(RafFilePathSlice, destPaths["rawPath"])
-
 	//DEBUG
-	// printSlice(JpgFilePathSlice)
-	// printSlice(RafFilePathSlice)
+	//printSlice(JpgFilePathSlice)
+	//printSlice(RafFilePathSlice)
+}
+
+func main() {
+	app := cli.NewApp()
+	app.Name = "fujiCp"
+	app.Usage = "copies images from fuji cameras"
+	app.Version = "1.0.0"
+	app.UsageText = "fujiCp /path/to/source/folder/or/sdCard"
+
+	//calls main function
+	app.Action = func(c *cli.Context) error {
+		searchPath := c.Args().Get(0)
+		mainFunc(searchPath)
+		return nil
+	}
+
+	app.Run(os.Args)
 }
